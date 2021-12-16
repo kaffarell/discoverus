@@ -1,4 +1,4 @@
-module kaffarell/discoverus
+module github.com/kaffarell/discoverus
 
 go 1.17
 
