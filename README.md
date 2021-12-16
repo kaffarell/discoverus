@@ -15,7 +15,7 @@
 
 
 ## How-To Register
-Send a POST request to /apps/_appId_ with the following object in json format:
+Send a POST request to /apps/**appId** with the following object in json format:
 ```json
 {
   "id": "user"
