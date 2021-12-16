@@ -1,10 +1,21 @@
 package main
 
 import (
+	"encoding/json"
+	"fmt"
+	"io/ioutil"
 	"net/http"
 
 	"github.com/julienschmidt/httprouter"
 )
+
+type ServiceJson struct {
+	Id             string `json:"id"`
+	ServiceType    string `json:"serviceType"`
+	Ip             string `json:"ip"`
+	Port           int    `json:"port"`
+	HealthCheckUrl string `json:"healthCheckUrl"`
+}
 
 func register(w http.ResponseWriter, req *http.Request, ps httprouter.Params) {
 	//service := ps.ByName("id")
@@ -18,6 +29,19 @@ func register(w http.ResponseWriter, req *http.Request, ps httprouter.Params) {
 			"healthCheckUrl": "/hc"
 		}
 	*/
+	body, err := ioutil.ReadAll(req.Body)
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println(string(body))
+	var t ServiceJson
+	err = json.Unmarshal(body, &t)
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println(t.Id)
+	fmt.Println(t)
+
 	w.WriteHeader(http.StatusOK)
 }
 
