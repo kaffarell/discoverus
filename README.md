@@ -14,7 +14,7 @@
 | Query for a specific instanceId     | GET /apps/**appId**/**instanceId** | 200 OK |
 
 
-## How-To Register
+## How-To gegister app to discoverus
 Send a POST request to /apps/**appId** with the following object in json format:
 ```json
 {
@@ -24,4 +24,10 @@ Send a POST request to /apps/**appId** with the following object in json format:
   "port": 87
   "healthCheckUrl": "/hc"
 }
+```
+## Run discoverus
+The easiest way to run discoverus is to use the docker image provided:
+```
+docker build . -t discoverus
+docker run -d -p 80:80 discoverus
 ```
