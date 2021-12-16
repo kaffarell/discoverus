@@ -7,6 +7,7 @@ import (
 	"net/http"
 
 	"github.com/julienschmidt/httprouter"
+	"github.com/kaffarell/discoverus/src/service"
 )
 
 type ServiceJson struct {
@@ -18,7 +19,6 @@ type ServiceJson struct {
 }
 
 func register(w http.ResponseWriter, req *http.Request, ps httprouter.Params) {
-	//service := ps.ByName("id")
 	/*
 		JSON structure:
 		{
@@ -29,24 +29,54 @@ func register(w http.ResponseWriter, req *http.Request, ps httprouter.Params) {
 			"healthCheckUrl": "/hc"
 		}
 	*/
+	// Parse JSON
 	body, err := ioutil.ReadAll(req.Body)
 	if err != nil {
 		panic(err)
 	}
-	fmt.Println(string(body))
 	var t ServiceJson
 	err = json.Unmarshal(body, &t)
 	if err != nil {
 		panic(err)
 	}
-	fmt.Println(t.Id)
-	fmt.Println(t)
+
+	// Get appId
+	serviceId := ps.ByName("id")
+
+	// Check if service is already existing
+	_, error := service.GetService(serviceId)
+	if error != nil {
+		// Create Service
+		result := service.NewService(t.Id, t.ServiceType, t.HealthCheckUrl)
+
+		if result == false {
+			w.WriteHeader(http.StatusBadRequest)
+			fmt.Fprint(w, "Error creating new Service")
+			return
+		}
+	}
+	// Add instance
+	instance := service.NewInstance(0, t.Ip, t.Port)
+	service.AddInstance(serviceId, instance)
 
 	w.WriteHeader(http.StatusOK)
 }
 
-func getService(w http.ResponseWriter, req *http.Request, ps httprouter.Params) {
+func getInstance(w http.ResponseWriter, req *http.Request, ps httprouter.Params) {
+	// Get appId
+	serviceId := ps.ByName("id")
+	instances_array, err := service.GetInstances(serviceId)
+
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		fmt.Fprint(w, "Requested service not found")
+	}
+
+	fmt.Println(instances_array)
+	json, _ := json.Marshal([]service.Instance(instances_array))
+	fmt.Println(json)
 	w.WriteHeader(http.StatusOK)
+	fmt.Fprint(w, string(json))
 }
 
 func renew(w http.ResponseWriter, req *http.Request, ps httprouter.Params) {
@@ -58,10 +88,11 @@ func hc(w http.ResponseWriter, req *http.Request, ps httprouter.Params) {
 }
 
 func main() {
+	service.Services = make(map[service.Service]service.InstanceArray)
 
 	router := httprouter.New()
 	router.GET("/hc", hc)
-	router.GET("/apps/:id", getService)
+	router.GET("/apps/:id", getInstance)
 	router.POST("/apps/:id", register)
 	router.PUT("/apps/:id/:instance", renew)
 

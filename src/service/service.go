@@ -1,24 +1,26 @@
 package service
 
-import "errors"
+import (
+	"errors"
+)
 
 type InstanceArray []Instance
 
 var Services map[Service]InstanceArray
 
 type Service struct {
-	name           string
-	serviceType    string
-	healthCheckUrl string
+	Name           string
+	ServiceType    string
+	HealthCheckUrl string
 }
 
 func NewService(name string, serviceType string, healthCheckUrl string) bool {
 	newService := Service{
-		name:           name,
-		serviceType:    serviceType,
-		healthCheckUrl: healthCheckUrl,
+		Name:           name,
+		ServiceType:    serviceType,
+		HealthCheckUrl: healthCheckUrl,
 	}
-	if Services[newService] != nil {
+	if Services[newService] == nil {
 		Services[newService] = make(InstanceArray, 0)
 	} else {
 		return false
@@ -32,7 +34,7 @@ func NewService(name string, serviceType string, healthCheckUrl string) bool {
 */
 func GetService(serviceName string) (*Service, error) {
 	for k := range Services {
-		if k.name == serviceName {
+		if k.Name == serviceName {
 			return &k, nil
 		}
 
@@ -50,7 +52,7 @@ func AddInstance(serviceName string, instance Instance) bool {
 	return true
 }
 
-func GetInstance(serviceName string) (InstanceArray, error) {
+func GetInstances(serviceName string) (InstanceArray, error) {
 	search, error := GetService(serviceName)
 	if error != nil {
 		return nil, errors.New("No Service found")
@@ -61,14 +63,14 @@ func GetInstance(serviceName string) (InstanceArray, error) {
 
 func NewInstance(instanceId int, ip string, port int) Instance {
 	return Instance{
-		instanceId: instanceId,
-		ip:         ip,
-		port:       port,
+		InstanceId: instanceId,
+		IP:         ip,
+		Port:       port,
 	}
 }
 
 type Instance struct {
-	instanceId int
-	ip         string
-	port       int
+	InstanceId int    `json:"instanceId"`
+	IP         string `json:"ip"`
+	Port       int    `json:"port"`
 }
