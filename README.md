@@ -1,3 +1,1 @@
-![sauropod](https://user-images.githubusercontent.com/42062381/146366338-eb2fddeb-5dc1-49f0-8c9e-591d5da13bef.png)
-# Discoverus
-Simple microservice discovery service
+![discoverus](https://user-images.githubusercontent.com/42062381/146393207-2a596522-0808-437c-97ca-33a500a86520.png)
