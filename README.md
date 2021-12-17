@@ -14,7 +14,7 @@
 | Query for a specific instanceId     | GET /apps/**appId**/**instanceId** | 200 OK |
 
 
-## How-To gegister app to discoverus
+## How-To register app to discoverus
 Send a POST request to /apps/**appId** with the following object in json format:
 ```json
 {
