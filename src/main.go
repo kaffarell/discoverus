@@ -62,7 +62,7 @@ func register(w http.ResponseWriter, req *http.Request, ps httprouter.Params) {
 	w.WriteHeader(http.StatusOK)
 }
 
-func getInstance(w http.ResponseWriter, req *http.Request, ps httprouter.Params) {
+func getInstances(w http.ResponseWriter, req *http.Request, ps httprouter.Params) {
 	// Get appId
 	serviceId := ps.ByName("id")
 	instances_array, err := service.GetInstances(serviceId)
@@ -72,9 +72,13 @@ func getInstance(w http.ResponseWriter, req *http.Request, ps httprouter.Params)
 		fmt.Fprint(w, "Requested service not found")
 	}
 
-	fmt.Println(instances_array)
 	json, _ := json.Marshal([]service.Instance(instances_array))
-	fmt.Println(json)
+	w.WriteHeader(http.StatusOK)
+	fmt.Fprint(w, string(json))
+}
+
+func getServices(w http.ResponseWriter, req *http.Request, ps httprouter.Params) {
+	json, _ := json.Marshal(service.GetServices())
 	w.WriteHeader(http.StatusOK)
 	fmt.Fprint(w, string(json))
 }
@@ -92,7 +96,8 @@ func main() {
 
 	router := httprouter.New()
 	router.GET("/hc", hc)
-	router.GET("/apps/:id", getInstance)
+	router.GET("/apps", getServices)
+	router.GET("/apps/:id", getInstances)
 	router.POST("/apps/:id", register)
 	router.PUT("/apps/:id/:instance", renew)
 

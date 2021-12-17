@@ -29,6 +29,17 @@ func NewService(name string, serviceType string, healthCheckUrl string) bool {
 	return true
 }
 
+func GetServices() []Service {
+	keys := make([]Service, len(Services))
+
+	i := 0
+	for k := range Services {
+		keys[i] = k
+		i++
+	}
+	return keys
+}
+
 /*
 	Searches for service in map and returns the struct
 */
