@@ -2,9 +2,10 @@ package service
 
 import (
 	"errors"
+    "github.com/kaffarell/discoverus/internal/instance"
 )
 
-type InstanceArray []Instance
+type InstanceArray []instance.Instance
 
 var Services map[Service]InstanceArray
 
@@ -13,6 +14,7 @@ type Service struct {
 	ServiceType    string
 	HealthCheckUrl string
 }
+
 
 func NewService(name string, serviceType string, healthCheckUrl string) bool {
 	newService := Service{
@@ -53,7 +55,7 @@ func GetService(serviceName string) (*Service, error) {
 	return nil, errors.New("Service not found")
 }
 
-func AddInstance(serviceName string, instance Instance) bool {
+func AddInstance(serviceName string, instance instance.Instance) bool {
 	search, error := GetService(serviceName)
 	if error != nil {
 		return false
@@ -72,16 +74,4 @@ func GetInstances(serviceName string) (InstanceArray, error) {
 
 }
 
-func NewInstance(instanceId int, ip string, port int) Instance {
-	return Instance{
-		InstanceId: instanceId,
-		IP:         ip,
-		Port:       port,
-	}
-}
 
-type Instance struct {
-	InstanceId int    `json:"instanceId"`
-	IP         string `json:"ip"`
-	Port       int    `json:"port"`
-}

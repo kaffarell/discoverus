@@ -7,7 +7,8 @@ import (
 	"net/http"
 
 	"github.com/julienschmidt/httprouter"
-	"github.com/kaffarell/discoverus/src/service"
+	"github.com/kaffarell/discoverus/internal/service"
+	"github.com/kaffarell/discoverus/internal/instance"
 )
 
 type ServiceJson struct {
@@ -56,7 +57,7 @@ func register(w http.ResponseWriter, req *http.Request, ps httprouter.Params) {
 		}
 	}
 	// Add instance
-	instance := service.NewInstance(0, t.Ip, t.Port)
+	instance := instance.NewInstance(0, t.Ip, t.Port)
 	service.AddInstance(serviceId, instance)
 
 	w.WriteHeader(http.StatusOK)
@@ -72,7 +73,7 @@ func getInstances(w http.ResponseWriter, req *http.Request, ps httprouter.Params
 		fmt.Fprint(w, "Requested service not found")
 	}
 
-	json, _ := json.Marshal([]service.Instance(instances_array))
+	json, _ := json.Marshal([]instance.Instance(instances_array))
 	w.WriteHeader(http.StatusOK)
 	fmt.Fprint(w, string(json))
 }
