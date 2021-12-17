@@ -10,6 +10,6 @@ COPY . .
 
 RUN go build -o app ./src/.
 
-EXPOSE 80
+EXPOSE 2000
 
 CMD [ "./app" ]

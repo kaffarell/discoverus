@@ -101,5 +101,8 @@ func main() {
 	router.POST("/apps/:id", register)
 	router.PUT("/apps/:id/:instance", renew)
 
-	http.ListenAndServe(":80", router)
+    err := http.ListenAndServe(":2000", router)
+    if err != nil {
+        fmt.Println(err)
+    }
 }

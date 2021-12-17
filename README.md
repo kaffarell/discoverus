@@ -29,5 +29,6 @@ Send a POST request to /apps/**appId** with the following object in json format:
 The easiest way to run discoverus is to use the docker image provided:
 ```
 docker build . -t discoverus
-docker run -d -p 80:80 discoverus
+docker run -d -p 2000:2000 discoverus
 ```
+The default internal port is 2000, but we can reroute it when using the docker container with the -p option.
