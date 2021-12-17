@@ -2,7 +2,8 @@ package service
 
 import (
 	"errors"
-    "github.com/kaffarell/discoverus/internal/instance"
+
+	"github.com/kaffarell/discoverus/pkg/instance"
 )
 
 type InstanceArray []instance.Instance
@@ -14,7 +15,6 @@ type Service struct {
 	ServiceType    string
 	HealthCheckUrl string
 }
-
 
 func NewService(name string, serviceType string, healthCheckUrl string) bool {
 	newService := Service{
@@ -73,5 +73,3 @@ func GetInstances(serviceName string) (InstanceArray, error) {
 	return Services[*search], nil
 
 }
-
-

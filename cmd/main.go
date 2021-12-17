@@ -5,10 +5,13 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"strings"
+	"time"
 
+	"github.com/google/uuid"
 	"github.com/julienschmidt/httprouter"
-	"github.com/kaffarell/discoverus/internal/service"
-	"github.com/kaffarell/discoverus/internal/instance"
+	"github.com/kaffarell/discoverus/pkg/instance"
+	"github.com/kaffarell/discoverus/pkg/service"
 )
 
 type ServiceJson struct {
@@ -50,17 +53,29 @@ func register(w http.ResponseWriter, req *http.Request, ps httprouter.Params) {
 		// Create Service
 		result := service.NewService(t.Id, t.ServiceType, t.HealthCheckUrl)
 
-		if result == false {
+		if !result {
 			w.WriteHeader(http.StatusBadRequest)
 			fmt.Fprint(w, "Error creating new Service")
 			return
 		}
 	}
 	// Add instance
-	instance := instance.NewInstance(0, t.Ip, t.Port)
+	// Get the current unix time and set it as the last heartbeat of the instance
+	currentTime := time.Now().Unix()
+
+	uuidWithHyphen := uuid.New()
+	// Get uuid without hyphens
+	uuid := strings.Replace(uuidWithHyphen.String(), "-", "", -1)
+
+	// Create new instance
+	instance := instance.NewInstance(uuid, t.Ip, t.Port, currentTime)
 	service.AddInstance(serviceId, instance)
 
+	// Return the instance
+	json, _ := json.Marshal(instance)
+
 	w.WriteHeader(http.StatusOK)
+	fmt.Fprint(w, string(json))
 }
 
 func getInstances(w http.ResponseWriter, req *http.Request, ps httprouter.Params) {
@@ -102,8 +117,8 @@ func main() {
 	router.POST("/apps/:id", register)
 	router.PUT("/apps/:id/:instance", renew)
 
-    err := http.ListenAndServe(":2000", router)
-    if err != nil {
-        fmt.Println(err)
-    }
+	err := http.ListenAndServe(":2000", router)
+	if err != nil {
+		fmt.Println(err)
+	}
 }
