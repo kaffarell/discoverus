@@ -34,7 +34,7 @@ docker run -d -p 2000:2000 discoverus
 The default internal port is 2000, but we can reroute it when using the docker container with the -p option.
 
 ## Todo
-* [ ] Use redis to store the instances and services
+* [x] Use redis to store the instances and services
 * [ ] Website that displays available services and instances
 * [ ] Implement extensive logging
 * [ ] Automatically remove services in 30 sec / renew with heartbeat
