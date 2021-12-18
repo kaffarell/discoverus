@@ -2,15 +2,6 @@ version: "3.9"
 
 services:
 
-  discoverus:
-    build: .
-    container_name: discoverus
-    networks:
-      - main
-    depends_on:
-      - "redis" 
-    ports: 
-      - "2000:2000"
   redis-services:
     image: redis
     container_name: redis-services
@@ -26,6 +17,13 @@ services:
     container_name: redis-registry
     networks:
       - main
+  discoverus:
+    build: .
+    container_name: discoverus
+    networks:
+      - main
+    ports: 
+      - "2000:2000"
 
 networks:
   main:

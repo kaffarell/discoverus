@@ -89,6 +89,7 @@ func getInstances(w http.ResponseWriter, req *http.Request, ps httprouter.Params
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		fmt.Fprint(w, "Requested service not found")
+		return
 	}
 
 	json, _ := json.Marshal([]types.Instance(instances_array))
@@ -120,6 +121,9 @@ func main() {
 	router.GET("/apps/:id", getInstances)
 	router.POST("/apps/:id", register)
 	router.PUT("/apps/:id/:instance", renew)
+
+	// Serve status website
+	router.ServeFiles("/status/*filepath", http.Dir("website/"))
 
 	err := http.ListenAndServe(":2000", router)
 	if err != nil {
