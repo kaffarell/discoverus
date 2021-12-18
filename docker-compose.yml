@@ -5,6 +5,8 @@ services:
   discoverus:
     build: .
     container_name: discoverus
+    networks:
+      - main
     depends_on:
       - "redis" 
     ports: 
@@ -12,15 +14,19 @@ services:
   redis-services:
     image: redis
     container_name: redis-services
-    ports:
-      - "6379:6379"
+    networks:
+      - main
   redis-instances:
     image: redis
     container_name: redis-instances
-    ports:
-      - "6379:6379"
+    networks:
+      - main
   redis-registry:
     image: redis
     container_name: redis-registry
-    ports:
-      - "6379:6379"
+    networks:
+      - main
+
+networks:
+  main:
+    driver: bridge
