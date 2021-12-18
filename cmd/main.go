@@ -10,8 +10,11 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/julienschmidt/httprouter"
+	"github.com/kaffarell/discoverus/pkg/adapters"
 	"github.com/kaffarell/discoverus/pkg/instance"
+	"github.com/kaffarell/discoverus/pkg/ports"
 	"github.com/kaffarell/discoverus/pkg/service"
+	"github.com/kaffarell/discoverus/pkg/types"
 )
 
 type ServiceJson struct {
@@ -88,7 +91,7 @@ func getInstances(w http.ResponseWriter, req *http.Request, ps httprouter.Params
 		fmt.Fprint(w, "Requested service not found")
 	}
 
-	json, _ := json.Marshal([]instance.Instance(instances_array))
+	json, _ := json.Marshal([]types.Instance(instances_array))
 	w.WriteHeader(http.StatusOK)
 	fmt.Fprint(w, string(json))
 }
@@ -108,7 +111,8 @@ func hc(w http.ResponseWriter, req *http.Request, ps httprouter.Params) {
 }
 
 func main() {
-	service.Services = make(map[service.Service]service.InstanceArray)
+	ports.StorageInstance = &adapters.RedisStorage{}
+	ports.StorageInstance.New()
 
 	router := httprouter.New()
 	router.GET("/hc", hc)

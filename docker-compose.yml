@@ -9,8 +9,18 @@ services:
       - "redis" 
     ports: 
       - "2000:2000"
-  redis:
+  redis-services:
     image: redis
-    container_name: redis
+    container_name: redis-services
+    ports:
+      - "6379:6379"
+  redis-instances:
+    image: redis
+    container_name: redis-instances
+    ports:
+      - "6379:6379"
+  redis-registry:
+    image: redis
+    container_name: redis-registry
     ports:
       - "6379:6379"
