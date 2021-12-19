@@ -36,5 +36,6 @@ The default internal port is 2000, but we can reroute it when using the docker c
 ## Todo
 * [x] Use redis to store the instances and services
 * [x] Website that displays available services and instances
+* [ ] De-register instances 
 * [ ] Implement extensive logging
 * [ ] Automatically remove services in 30 sec / renew with heartbeat
