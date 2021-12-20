@@ -16,7 +16,7 @@ func main() {
 
 	dbAdapter, err := db.NewAdapter()
 	if err != nil {
-		log.Fatalf("failed to initiate db connection: %v", err)
+		log.Fatalf("Failed to initiate db connection: %v", err)
 	}
 
 	// NOTE: The application's right side port for driven

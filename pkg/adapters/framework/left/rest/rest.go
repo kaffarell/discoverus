@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"strings"
 	"time"
@@ -132,6 +133,6 @@ func (a Adapter) Run() {
 
 	err := http.ListenAndServe(":2000", router)
 	if err != nil {
-		fmt.Println(err)
+		log.Fatal(err)
 	}
 }
