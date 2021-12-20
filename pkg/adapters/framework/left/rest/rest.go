@@ -10,13 +10,13 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/julienschmidt/httprouter"
-	"github.com/kaffarell/discoverus/pkg/application/api"
 	"github.com/kaffarell/discoverus/pkg/application/core/instance"
 	"github.com/kaffarell/discoverus/pkg/application/core/service"
+	"github.com/kaffarell/discoverus/pkg/ports"
 )
 
 type Adapter struct {
-	application api.Application
+	api ports.APIPort
 }
 
 // FIXME: find better solution
@@ -29,11 +29,11 @@ type ServiceJson struct {
 }
 
 // NewAdapter creates a new Adapter
-func NewAdapter(application api.Application) *Adapter {
-	return &Adapter{application: application}
+func NewAdapter(api ports.APIPort) *Adapter {
+	return &Adapter{api: api}
 }
 
-func (a Adapter) PostRegister(writer http.ResponseWriter, req *http.Request, parameter httprouter.Params) {
+func (adapter Adapter) PostRegister(writer http.ResponseWriter, req *http.Request, parameter httprouter.Params) {
 	/*
 		JSON structure:
 		{
@@ -59,11 +59,11 @@ func (a Adapter) PostRegister(writer http.ResponseWriter, req *http.Request, par
 	serviceId := parameter.ByName("id")
 
 	// Check if service is already existing
-	_, error := a.application.GetService(serviceId)
+	_, error := adapter.api.GetService(serviceId)
 	if error != nil {
 		// Create Service
 		result := service.NewService(t.Id, t.ServiceType, t.HealthCheckUrl)
-		err := a.application.InsertService(result)
+		err := adapter.api.InsertService(result)
 
 		if err != nil {
 			writer.WriteHeader(http.StatusBadRequest)
@@ -81,7 +81,7 @@ func (a Adapter) PostRegister(writer http.ResponseWriter, req *http.Request, par
 
 	// Create new instance
 	instance := instance.NewInstance(uuid, t.Ip, t.Port, currentTime)
-	a.application.AddInstance(serviceId, instance)
+	adapter.api.AddInstance(serviceId, instance)
 
 	// Return the instance
 	json, _ := json.Marshal(instance)
@@ -90,10 +90,10 @@ func (a Adapter) PostRegister(writer http.ResponseWriter, req *http.Request, par
 	fmt.Fprint(writer, string(json))
 }
 
-func (a Adapter) GetInstances(writer http.ResponseWriter, req *http.Request, parameter httprouter.Params) {
+func (adapter Adapter) GetInstances(writer http.ResponseWriter, req *http.Request, parameter httprouter.Params) {
 	// Get appId
 	serviceId := parameter.ByName("id")
-	instances_array, err := a.application.GetInstances(serviceId)
+	instances_array, err := adapter.api.GetInstances(serviceId)
 
 	if err != nil {
 		writer.WriteHeader(http.StatusBadRequest)
@@ -105,8 +105,8 @@ func (a Adapter) GetInstances(writer http.ResponseWriter, req *http.Request, par
 	writer.WriteHeader(http.StatusOK)
 	fmt.Fprint(writer, string(json))
 }
-func (a Adapter) GetServices(writer http.ResponseWriter, req *http.Request, parameter httprouter.Params) {
-	json, _ := json.Marshal(a.application.GetServices())
+func (adapter Adapter) GetServices(writer http.ResponseWriter, req *http.Request, parameter httprouter.Params) {
+	json, _ := json.Marshal(adapter.api.GetServices())
 	writer.WriteHeader(http.StatusOK)
 	fmt.Fprint(writer, string(json))
 }
