@@ -1,132 +1,40 @@
 package main
 
 import (
-	"encoding/json"
-	"fmt"
-	"io/ioutil"
-	"net/http"
-	"strings"
-	"time"
+	"log"
 
-	"github.com/google/uuid"
-	"github.com/julienschmidt/httprouter"
-	"github.com/kaffarell/discoverus/pkg/adapters"
-	"github.com/kaffarell/discoverus/pkg/instance"
-	"github.com/kaffarell/discoverus/pkg/ports"
-	"github.com/kaffarell/discoverus/pkg/service"
-	"github.com/kaffarell/discoverus/pkg/types"
+	// application
+	"github.com/kaffarell/discoverus/pkg/application/api"
+
+	// adapters
+	"github.com/kaffarell/discoverus/pkg/adapters/framework/left/rest"
+	"github.com/kaffarell/discoverus/pkg/adapters/framework/right/db"
 )
 
-type ServiceJson struct {
-	Id             string `json:"id"`
-	ServiceType    string `json:"serviceType"`
-	Ip             string `json:"ip"`
-	Port           int    `json:"port"`
-	HealthCheckUrl string `json:"healthCheckUrl"`
-}
-
-func register(w http.ResponseWriter, req *http.Request, ps httprouter.Params) {
-	/*
-		JSON structure:
-		{
-			"id": "user"
-			"serviceType": "service"
-			"ip": "192_144.3.5"
-			"port": 87
-			"healthCheckUrl": "/hc"
-		}
-	*/
-	// Parse JSON
-	body, err := ioutil.ReadAll(req.Body)
-	if err != nil {
-		panic(err)
-	}
-	var t ServiceJson
-	err = json.Unmarshal(body, &t)
-	if err != nil {
-		panic(err)
-	}
-
-	// Get appId
-	serviceId := ps.ByName("id")
-
-	// Check if service is already existing
-	_, error := service.GetService(serviceId)
-	if error != nil {
-		// Create Service
-		result := service.NewService(t.Id, t.ServiceType, t.HealthCheckUrl)
-
-		if !result {
-			w.WriteHeader(http.StatusBadRequest)
-			fmt.Fprint(w, "Error creating new Service")
-			return
-		}
-	}
-	// Add instance
-	// Get the current unix time and set it as the last heartbeat of the instance
-	currentTime := time.Now().Unix()
-
-	uuidWithHyphen := uuid.New()
-	// Get uuid without hyphens
-	uuid := strings.Replace(uuidWithHyphen.String(), "-", "", -1)
-
-	// Create new instance
-	instance := instance.NewInstance(uuid, t.Ip, t.Port, currentTime)
-	service.AddInstance(serviceId, instance)
-
-	// Return the instance
-	json, _ := json.Marshal(instance)
-
-	w.WriteHeader(http.StatusOK)
-	fmt.Fprint(w, string(json))
-}
-
-func getInstances(w http.ResponseWriter, req *http.Request, ps httprouter.Params) {
-	// Get appId
-	serviceId := ps.ByName("id")
-	instances_array, err := service.GetInstances(serviceId)
-
-	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		fmt.Fprint(w, "Requested service not found")
-		return
-	}
-
-	json, _ := json.Marshal([]types.Instance(instances_array))
-	w.WriteHeader(http.StatusOK)
-	fmt.Fprint(w, string(json))
-}
-
-func getServices(w http.ResponseWriter, req *http.Request, ps httprouter.Params) {
-	json, _ := json.Marshal(service.GetServices())
-	w.WriteHeader(http.StatusOK)
-	fmt.Fprint(w, string(json))
-}
-
-func renew(w http.ResponseWriter, req *http.Request, ps httprouter.Params) {
-	w.WriteHeader(http.StatusOK)
-}
-
-func hc(w http.ResponseWriter, req *http.Request, ps httprouter.Params) {
-	w.WriteHeader(http.StatusOK)
-}
-
 func main() {
-	ports.StorageInstance = &adapters.RedisStorage{}
-	ports.StorageInstance.New()
+	var err error
 
-	router := httprouter.New()
-	router.GET("/hc", hc)
-	router.GET("/apps", getServices)
-	router.GET("/apps/:id", getInstances)
-	router.POST("/apps/:id", register)
-	router.PUT("/apps/:id/:instance", renew)
-
-	// Serve status website
-	router.ServeFiles("/status/*filepath", http.Dir("website/"))
-
-	err := http.ListenAndServe(":2000", router)
+	dbAdapter, err := db.NewAdapter()
 	if err != nil {
-		fmt.Println(err)
+		log.Fatalf("failed to initiate db connection: %v", err)
 	}
+
+	// NOTE: The application's right side port for driven
+	// adapters, in this case, a db adapter.
+	// Therefore the type for the dbAdapter parameter
+	// that is to be injected into the NewApplication will
+	// be of type DbPort
+	applicationAPI := api.NewApplication(dbAdapter)
+
+	// NOTE: We use dependency injection to give the grpc
+	// adapter access to the application, therefore
+	// the location of the port is inverted. That is
+	// the grpc adapter accesses the hexagon's driving port at the
+	// application boundary via dependency injection,
+	// therefore the type for the applicaitonAPI parameter
+	// that is to be injected into the gRPC adapter will
+	// be of type APIPort which is our hexagons left side
+	// port for driving adapters
+	restAdapter := rest.NewAdapter(*applicationAPI)
+	restAdapter.Run()
 }
