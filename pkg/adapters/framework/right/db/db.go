@@ -3,6 +3,7 @@ package db
 import (
 	"context"
 	"encoding/json"
+	"errors"
 
 	"github.com/go-redis/redis/v8"
 	// FIXME: should not be here
@@ -40,11 +41,33 @@ func NewAdapter() (*Adapter, error) {
 		Password: "", // no password set
 		DB:       0,  // use default DB
 	})
-	return &Adapter{
-		ctx:           ctx,
-		redisService:  redisService,
-		redisInstance: redisInstance,
-		redisRegistry: redisRegistry}, nil
+
+	// Test if all databases are up
+	dbStatus := false
+	dbStatus = pingDatabase(ctx, *redisService)
+	dbStatus = pingDatabase(ctx, *redisInstance)
+	dbStatus = pingDatabase(ctx, *redisRegistry)
+
+	if dbStatus == false {
+		return nil, errors.New("One or more databases are not up!")
+	} else {
+		return &Adapter{
+			ctx:           ctx,
+			redisService:  redisService,
+			redisInstance: redisInstance,
+			redisRegistry: redisRegistry}, nil
+
+	}
+
+}
+
+func pingDatabase(ctx context.Context, rdb redis.Client) bool {
+	_, err := rdb.Ping(ctx).Result()
+	if err == nil {
+		return true
+	} else {
+		return false
+	}
 }
 
 func (a Adapter) AddService(service service.Service) error {

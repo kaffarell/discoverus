@@ -13,11 +13,13 @@ import (
 
 func main() {
 	var err error
+	log.Println("Connecting to databases...")
 
 	dbAdapter, err := db.NewAdapter()
 	if err != nil {
 		log.Fatalf("Failed to initiate db connection: %v", err)
 	}
+	log.Println("Connected to databases!")
 
 	// NOTE: The application's right side port for driven
 	// adapters, in this case, a db adapter.
@@ -35,6 +37,7 @@ func main() {
 	// that is to be injected into the gRPC adapter will
 	// be of type APIPort which is our hexagons left side
 	// port for driving adapters
+	log.Println("Starting application!")
 	restAdapter := rest.NewAdapter(*applicationAPI)
 	restAdapter.Run()
 }
