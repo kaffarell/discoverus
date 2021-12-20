@@ -16,8 +16,8 @@ func NewApplication(db ports.DbPort) *Application {
 	return &Application{db: db}
 }
 
-func (a Application) InsertService(service service.Service) {
-	a.db.AddService(service)
+func (a Application) InsertService(service service.Service) error {
+	return a.db.AddService(service)
 }
 
 func (a Application) GetService(serviceId string) (service.Service, error) {
