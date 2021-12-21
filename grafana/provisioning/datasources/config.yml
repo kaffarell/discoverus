@@ -1,0 +1,53 @@
+apiVersion: 1
+
+datasources:
+  - name: Redis Services
+    type: redis-datasource
+    access: proxy
+    orgId: 1
+    isDefault: true
+    version: 1
+    url: redis://redis-services:6379
+    jsonData:
+      client: standalone
+      poolSize: 5
+      timeout: 10
+      pingInterval: 0
+      pipelineWindow: 0
+    editable: true
+    secureJsonData:
+      password: 
+
+  - name: Redis Instances
+    type: redis-datasource
+    access: proxy
+    orgId: 1
+    isDefault: false
+    version: 1
+    url: redis://redis-instances:6379
+    jsonData:
+      client: standalone
+      poolSize: 5
+      timeout: 10
+      pingInterval: 0
+      pipelineWindow: 0
+    editable: true
+    secureJsonData:
+      password: 
+
+  - name: Redis Registry
+    type: redis-datasource
+    access: proxy
+    orgId: 1
+    isDefault: false
+    version: 1
+    url: redis://redis-registry:6379
+    jsonData:
+      client: standalone
+      poolSize: 5
+      timeout: 10
+      pingInterval: 0
+      pipelineWindow: 0
+    editable: true
+    secureJsonData:
+      password: 

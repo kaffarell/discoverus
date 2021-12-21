@@ -20,7 +20,6 @@ type Adapter struct {
 	api ports.APIPort
 }
 
-// FIXME: find better solution
 type ServiceJson struct {
 	Id             string `json:"id"`
 	ServiceType    string `json:"serviceType"`
