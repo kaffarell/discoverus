@@ -43,6 +43,11 @@ func (a Application) GetInstances(serviceName string) ([]instance.Instance, erro
 	return array, err
 }
 
+func (a Application) GetInstance(instanceId string) (instance.Instance, error) {
+	instanceObject, err := a.db.GetInstance(instanceId)
+	return instanceObject, err
+}
+
 func (a Application) DeleteInstance(serviceId string, instanceId string) error {
 	err := a.db.RemoveInstance(serviceId, instanceId)
 	return err

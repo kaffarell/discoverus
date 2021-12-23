@@ -111,6 +111,22 @@ func (adapter Adapter) GetServices(writer http.ResponseWriter, req *http.Request
 	fmt.Fprint(writer, string(json))
 }
 
+func (adapter Adapter) GetInstance(writer http.ResponseWriter, req *http.Request, parameter httprouter.Params) {
+	// Get instanceId
+	instanceId := parameter.ByName("instance")
+	instanceObject, err := adapter.api.GetInstance(instanceId)
+
+	if err != nil {
+		writer.WriteHeader(http.StatusBadRequest)
+		fmt.Fprint(writer, "Requested instance not found")
+		return
+	}
+
+	json, _ := json.Marshal(instance.Instance(instanceObject))
+	writer.WriteHeader(http.StatusOK)
+	fmt.Fprint(writer, string(json))
+}
+
 func (a Adapter) PutRenew(writer http.ResponseWriter, req *http.Request, parameter httprouter.Params) {
 	writer.WriteHeader(http.StatusOK)
 }
@@ -140,6 +156,7 @@ func (a Adapter) Run() {
 	router.POST("/apps/:id", a.PostRegister)
 	router.PUT("/apps/:id/:instance", a.PutRenew)
 	router.DELETE("/apps/:id/:instance", a.DeleteInstance)
+	router.GET("/apps/:id/:instance", a.GetInstance)
 
 	// Serve status website
 	router.ServeFiles("/status/*filepath", http.Dir("website/"))

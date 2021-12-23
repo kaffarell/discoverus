@@ -160,6 +160,20 @@ func (a Adapter) GetInstances(serviceId string) ([]instance.Instance, error) {
 
 }
 
+func (adapter Adapter) GetInstance(instanceId string) (instance.Instance, error) {
+	val, err := adapter.redisInstance.Get(adapter.ctx, instanceId).Result()
+
+	var instanceObject instance.Instance
+	if err == nil {
+		json.Unmarshal([]byte(val), &instanceObject)
+		return instanceObject, nil
+	} else {
+		// TODO: the instance should here be nil, not an empty instance
+		return instanceObject, err
+	}
+
+}
+
 func (a Adapter) GetRegistry() ([]string, error) {
 	values, err := a.redisRegistry.Keys(a.ctx, "*").Result()
 	if err != nil {

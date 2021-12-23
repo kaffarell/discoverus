@@ -11,6 +11,7 @@ type DbPort interface {
 	AddInstance(serviceId string, instance instance.Instance) error
 	RemoveInstance(serviceId string, instanceId string) error
 	GetInstances(serviceId string) ([]instance.Instance, error)
+	GetInstance(instanceId string) (instance.Instance, error)
 	GetService(serviceId string) (service.Service, error)
 	GetRegistry() ([]string, error)
 }
