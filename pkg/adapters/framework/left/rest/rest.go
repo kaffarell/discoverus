@@ -115,6 +115,19 @@ func (a Adapter) PutRenew(writer http.ResponseWriter, req *http.Request, paramet
 	writer.WriteHeader(http.StatusOK)
 }
 
+func (adapter Adapter) DeleteInstance(writer http.ResponseWriter, req *http.Request, parameter httprouter.Params) {
+	// Get appId
+	serviceId := parameter.ByName("id")
+	instanceId := parameter.ByName("instance")
+
+	err := adapter.api.DeleteInstance(serviceId, instanceId)
+	if err != nil {
+		writer.WriteHeader(http.StatusOK)
+	} else {
+		writer.WriteHeader(http.StatusOK)
+	}
+}
+
 func (a Adapter) GetHC(writer http.ResponseWriter, req *http.Request, parameter httprouter.Params) {
 	writer.WriteHeader(http.StatusOK)
 }
@@ -126,6 +139,7 @@ func (a Adapter) Run() {
 	router.GET("/apps/:id", a.GetInstances)
 	router.POST("/apps/:id", a.PostRegister)
 	router.PUT("/apps/:id/:instance", a.PutRenew)
+	router.DELETE("/apps/:id/:instance", a.DeleteInstance)
 
 	// Serve status website
 	router.ServeFiles("/status/*filepath", http.Dir("website/"))

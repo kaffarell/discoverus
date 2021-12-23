@@ -13,4 +13,5 @@ type APIPort interface {
 	GetServices() []string
 	GetService(serviceId string) (service.Service, error)
 	InsertService(service service.Service) error
+	DeleteInstance(serviceId string, instanceId string) error
 }

@@ -41,5 +41,9 @@ func (a Application) AddInstance(serviceName string, instance instance.Instance)
 func (a Application) GetInstances(serviceName string) ([]instance.Instance, error) {
 	array, err := a.db.GetInstances(serviceName)
 	return array, err
+}
 
+func (a Application) DeleteInstance(serviceId string, instanceId string) error {
+	err := a.db.RemoveInstance(serviceId, instanceId)
+	return err
 }
