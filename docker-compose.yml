@@ -2,23 +2,6 @@ version: "3.9"
 
 services:
 
-  redis-services:
-    image: redis
-    container_name: redis-services
-    networks:
-      - main
-
-  redis-instances:
-    image: redis
-    container_name: redis-instances
-    networks:
-      - main
-
-  redis-registry:
-    image: redis
-    container_name: redis-registry
-    networks:
-      - main
 
   grafana:
     image: grafana/grafana
