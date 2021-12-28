@@ -49,8 +49,8 @@ func (adapter Adapter) PostRegister(writer http.ResponseWriter, req *http.Reques
 	if err != nil {
 		panic(err)
 	}
-	var t ServiceJson
-	err = json.Unmarshal(body, &t)
+	var serviceJson ServiceJson
+	err = json.Unmarshal(body, &serviceJson)
 	if err != nil {
 		panic(err)
 	}
@@ -62,7 +62,7 @@ func (adapter Adapter) PostRegister(writer http.ResponseWriter, req *http.Reques
 	_, error := adapter.api.GetService(serviceId)
 	if error != nil {
 		// Create Service
-		result := service.NewService(t.Id, t.ServiceType, t.HealthCheckUrl)
+		result := service.NewService(serviceJson.Id, serviceJson.ServiceType, serviceJson.HealthCheckUrl)
 		err := adapter.api.InsertService(result)
 
 		if err != nil {
@@ -80,7 +80,7 @@ func (adapter Adapter) PostRegister(writer http.ResponseWriter, req *http.Reques
 	uuid := strings.Replace(uuidWithHyphen.String(), "-", "", -1)
 
 	// Create new instance
-	instance := instance.NewInstance(uuid, t.Ip, t.Port, currentTime)
+	instance := instance.NewInstance(uuid, serviceJson.Id, serviceJson.Ip, serviceJson.Port, currentTime)
 	adapter.api.AddInstance(serviceId, instance)
 
 	// Return the instance

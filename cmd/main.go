@@ -5,6 +5,7 @@ import (
 
 	// application
 	"github.com/kaffarell/discoverus/pkg/application/api"
+	"github.com/kaffarell/discoverus/pkg/application/config"
 
 	// adapters
 	"github.com/kaffarell/discoverus/pkg/adapters/framework/left/rest"
@@ -12,32 +13,28 @@ import (
 )
 
 func main() {
+
+	// Initiating Database Adapter
+	// Based on the DbPort interface
 	var err error
 	log.Println("Connecting to databases...")
-
-	dbAdapter, err := db.NewAdapter()
+	dbAdapter := db.NewAdapter()
 	if err != nil {
 		log.Fatalf("Failed to initiate db connection: %v", err)
 	}
+
 	log.Println("Connected to databases!")
 
-	// NOTE: The application's right side port for driven
-	// adapters, in this case, a db adapter.
-	// Therefore the type for the dbAdapter parameter
-	// that is to be injected into the NewApplication will
-	// be of type DbPort
-	applicationAPI := api.NewApplication(dbAdapter)
+	// Creating Configuration
+	config := config.NewConfiguration(90, 10)
 
-	// NOTE: We use dependency injection to give the grpc
-	// adapter access to the application, therefore
-	// the location of the port is inverted. That is
-	// the grpc adapter accesses the hexagon's driving port at the
-	// application boundary via dependency injection,
-	// therefore the type for the applicaitonAPI parameter
-	// that is to be injected into the gRPC adapter will
-	// be of type APIPort which is our hexagons left side
-	// port for driving adapters
+	// Initiating application
+	// Passing the previously created dbAdapter, based on the DbPort interface
+	applicationAPI := api.NewApplication(dbAdapter, config)
 	log.Println("Starting application!")
+
+	// Initiating RestApi
+	// The restAPI is using the application, which is based on the ApiPort interface
 	restAdapter := rest.NewAdapter(*applicationAPI)
 	restAdapter.Run()
 }

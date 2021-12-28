@@ -20,6 +20,18 @@ services:
     networks:
       - main
 
+  grafana:
+    image: grafana/grafana
+    container_name: grafana
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_INSTALL_PLUGINS=redis-app
+
+    networks:
+      - main
+
+
   discoverus:
     build: .
     container_name: discoverus

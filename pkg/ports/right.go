@@ -5,13 +5,16 @@ import (
 	"github.com/kaffarell/discoverus/pkg/application/core/service"
 )
 
-// DbPort is the port for a db adapter
-type DbPort interface {
+// StoragePort is the port for a db adapter
+type StoragePort interface {
 	AddService(service service.Service) error
-	AddInstance(serviceId string, instance instance.Instance) error
-	RemoveInstance(serviceId string, instanceId string) error
-	GetInstances(serviceId string) ([]instance.Instance, error)
-	GetInstance(instanceId string) (instance.Instance, error)
 	GetService(serviceId string) (service.Service, error)
-	GetRegistry() ([]string, error)
+	GetAllServices() ([]service.Service, error)
+	DeleteService(serviceId string) error
+
+	AddInstance(serviceId string, instance instance.Instance) error
+	GetInstancesOfService(serviceId string) ([]instance.Instance, error)
+	GetSpecificInstance(instanceId string) (instance.Instance, error)
+	GetAllInstances() ([]instance.Instance, error)
+	DeleteInstance(serviceId string, instanceId string) error
 }
