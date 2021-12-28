@@ -59,7 +59,7 @@ func (a Application) checkInstances() {
 	for _, v := range allInstances {
 		if v.LastHeartbeat < (currentTime - a.config.InstanceTimeout + a.config.InstanceTimeoutMargin) {
 			// Remove instance
-			log.Println("Deleting instance with serviceId: " + v.ServiceId)
+			log.Println("Removing instance " + v.Id + " because of inactivity")
 			err := a.DeleteInstance(v.ServiceId, v.Id)
 			if err != nil {
 				log.Println("Error removing instance")
@@ -96,7 +96,7 @@ func (a Application) AddInstance(serviceName string, instance instance.Instance)
 	return true
 }
 
-func (a Application) GetInstances(serviceName string) ([]instance.Instance, error) {
+func (a Application) GetInstancesOfService(serviceName string) ([]instance.Instance, error) {
 	array, err := a.db.GetInstancesOfService(serviceName)
 	if err != nil {
 		log.Println(err)
@@ -107,6 +107,11 @@ func (a Application) GetInstances(serviceName string) ([]instance.Instance, erro
 func (a Application) GetInstance(instanceId string) (instance.Instance, error) {
 	instanceObject, err := a.db.GetSpecificInstance(instanceId)
 	return instanceObject, err
+}
+
+func (a Application) GetAllInstances() ([]instance.Instance, error) {
+	instances, err := a.db.GetAllInstances()
+	return instances, err
 }
 
 func (a Application) DeleteInstance(serviceId string, instanceId string) error {

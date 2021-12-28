@@ -12,6 +12,7 @@
 | Send application instance heartbeat | PUT /apps/**appId**/**instanceId** | 200 OK |
 | Query for all appId instances       | GET /apps/**appId** | 200 OK |
 | Query for a specific instanceId     | GET /apps/**appId**/**instanceId** | 200 OK |
+| Dump all instances | GET /instances | 200 OK |
 
 
 ## How-To register app to discoverus

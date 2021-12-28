@@ -8,7 +8,8 @@ import (
 // APIPort is the technology neutral
 // port for driving adapters
 type APIPort interface {
-	GetInstances(serviceId string) ([]instance.Instance, error)
+	GetAllInstances() ([]instance.Instance, error)
+	GetInstancesOfService(serviceId string) ([]instance.Instance, error)
 	GetInstance(instanceId string) (instance.Instance, error)
 	AddInstance(serviceId string, instance instance.Instance) bool
 	GetServices() ([]service.Service, error)

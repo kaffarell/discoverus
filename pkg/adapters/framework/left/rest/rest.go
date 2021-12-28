@@ -93,7 +93,7 @@ func (adapter Adapter) PostRegister(writer http.ResponseWriter, req *http.Reques
 func (adapter Adapter) GetInstances(writer http.ResponseWriter, req *http.Request, parameter httprouter.Params) {
 	// Get appId
 	serviceId := parameter.ByName("id")
-	instances_array, err := adapter.api.GetInstances(serviceId)
+	instances_array, err := adapter.api.GetInstancesOfService(serviceId)
 
 	if err != nil {
 		writer.WriteHeader(http.StatusBadRequest)
@@ -132,6 +132,20 @@ func (adapter Adapter) GetInstance(writer http.ResponseWriter, req *http.Request
 	fmt.Fprint(writer, string(json))
 }
 
+func (adapter Adapter) GetAllInstances(writer http.ResponseWriter, req *http.Request, parameter httprouter.Params) {
+	instances, err := adapter.api.GetAllInstances()
+
+	if err != nil {
+		writer.WriteHeader(http.StatusBadRequest)
+		fmt.Fprint(writer, "Requested instance not found")
+		return
+	}
+
+	json, _ := json.Marshal([]instance.Instance(instances))
+	writer.WriteHeader(http.StatusOK)
+	fmt.Fprint(writer, string(json))
+}
+
 func (a Adapter) PutRenew(writer http.ResponseWriter, req *http.Request, parameter httprouter.Params) {
 	writer.WriteHeader(http.StatusOK)
 }
@@ -163,13 +177,29 @@ func defaultMiddlware(handle httprouter.Handle) httprouter.Handle {
 func (a Adapter) Run() {
 	router := httprouter.New()
 
+	// Return 200 OK if the service is alright
 	router.GET("/hc", defaultMiddlware(a.GetHC))
+
+	// Returns all the services it knows about
 	router.GET("/apps", defaultMiddlware(a.GetServices))
+
+	// Return all the instances of a specific service
 	router.GET("/apps/:id", defaultMiddlware(a.GetInstances))
+
+	// Register a new instance for a specific service
 	router.POST("/apps/:id", defaultMiddlware(a.PostRegister))
+
+	// Sends a heartbeat for the specific instance
 	router.PUT("/apps/:id/:instance", defaultMiddlware(a.PutRenew))
+
+	// De-registers a specific instance
 	router.DELETE("/apps/:id/:instance", defaultMiddlware(a.DeleteInstance))
+
+	// Gets a specific instance
 	router.GET("/apps/:id/:instance", defaultMiddlware(a.GetInstance))
+
+	// Dump all instances the service knows about
+	router.GET("/instances", defaultMiddlware(a.GetAllInstances))
 
 	// Serve status website
 	router.ServeFiles("/status/*filepath", http.Dir("website/"))

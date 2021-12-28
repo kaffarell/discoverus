@@ -1,11 +1,12 @@
-let services = new Map();
+let allServices = [];
+let allInstances = [];
 let lastSelectedService = '';
 
 function fillServiceTable() {
     // Clear table
     tableBody.innerHTML = '';
     // Fill table
-    for (const [key, value] of services.entries()) {
+    for (const service of allServices) {
         /*
         <tr class="table-success">
             <th scope="row">1</th>
@@ -15,7 +16,14 @@ function fillServiceTable() {
         </tr>
         */
         let tr = document.createElement('tr');
-        if(value.length === 0) {
+        // Count all instances that have this serviceId
+        let amountInstances = 0;
+        allInstances.forEach((e) => {
+            if(e.serviceid === service.id) {
+                amountInstances++;
+            }
+        });
+        if(amountInstances === 0) {
             tr.className = 'table-danger';
         }else {
             tr.className = 'table-success';
@@ -25,23 +33,22 @@ function fillServiceTable() {
         th1.setAttribute('scope', 'row');
         // Make serviceId clickable to ope instances
         let a = document.createElement('a');
-        a.className = 'link-primary'; a.innerText = key;
-        a.addEventListener('click', () => fillInstancesTable(key));
+        a.className = 'link-primary'; a.innerText = service.id;
+        a.addEventListener('click', () => fillInstancesTable(service.id));
         th1.appendChild(a);
 
         let td2 = document.createElement('td');
-        td2.innerText = 'service';
+        td2.innerText = service.serviceType;
 
         let td3 = document.createElement('td');
-        if(value.length === 0) {
+        if(amountInstances === 0) {
             td3.innerText = 'DOWN';
         }else {
             td3.innerText = 'UP';
         }
 
         let td4 = document.createElement('td');
-        //td4.innerText = value.map(e => JSON.stringify(e)).join('\n') 
-        td4.innerText = value.length;
+        td4.innerText = amountInstances;
 
         tr.appendChild(th1);
         tr.appendChild(td2);
@@ -63,11 +70,15 @@ function fillInstancesTable(serviceId) {
     let tableBodyInstances = document.getElementById('tableBodyInstances');
     tableBodyInstances.innerHTML = '';
 
-    let instances = services.get(serviceId);
     // Current time in unix seconds
     let currentTime = Math.floor(Date.now() / 1000);
 
-    if(instances) {
+    // Find all instances of serviceId
+    let instances = allInstances.filter(e => e.serviceid === serviceId)
+    console.log(serviceId);
+    console.log(instances);
+
+    if(instances.length !== 0) {
         for(let i = 0; i < instances.length; i++) {
             let tr = document.createElement('tr');
             if(currentTime - instances[i].lastHeartbeat > 90) {
@@ -103,30 +114,26 @@ function fillInstancesTable(serviceId) {
     }
 }
 
-function getInstances(serviceId) {
-
-    fetch('http://localhost:2000/apps/' + serviceId)
+function getInstances() {
+    fetch('http://localhost:2000/instances')
         .then(response => response.json())
         .then(data => {
-            services.set(serviceId, data)
+            allInstances = data
     });
 }
 
 function getServices() {
     // Get all serviceIds
-    let serviceIdArray = [];
     fetch('http://localhost:2000/apps')
         .then(response => response.json())
         .then(data => {
-            serviceIdArray = data;
-            for(let i = 0; i < serviceIdArray.length; i++) {
-                getInstances(serviceIdArray[i]);
-            }
+            allServices = data;
     });
 }
 
 function update() {
     getServices();
+    getInstances();
     fillServiceTable();
     fillInstancesTable(lastSelectedService);
 }
