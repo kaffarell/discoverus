@@ -101,12 +101,17 @@ func (adapter Adapter) GetInstances(writer http.ResponseWriter, req *http.Reques
 		return
 	}
 
-	json, _ := json.Marshal([]instance.Instance(instances_array))
+	json, _ := json.Marshal(instances_array)
 	writer.WriteHeader(http.StatusOK)
 	fmt.Fprint(writer, string(json))
 }
 func (adapter Adapter) GetServices(writer http.ResponseWriter, req *http.Request, parameter httprouter.Params) {
-	json, _ := json.Marshal(adapter.api.GetServices())
+	services, err := adapter.api.GetServices()
+	if err != nil {
+		writer.WriteHeader(http.StatusBadRequest)
+		return
+	}
+	json, _ := json.Marshal(services)
 	writer.WriteHeader(http.StatusOK)
 	fmt.Fprint(writer, string(json))
 }
@@ -148,15 +153,23 @@ func (a Adapter) GetHC(writer http.ResponseWriter, req *http.Request, parameter 
 	writer.WriteHeader(http.StatusOK)
 }
 
+func defaultMiddlware(handle httprouter.Handle) httprouter.Handle {
+	return func(w http.ResponseWriter, req *http.Request, parameter httprouter.Params) {
+		w.Header().Set("Content-Type", "application/json")
+		handle(w, req, parameter)
+	}
+}
+
 func (a Adapter) Run() {
 	router := httprouter.New()
-	router.GET("/hc", a.GetHC)
-	router.GET("/apps", a.GetServices)
-	router.GET("/apps/:id", a.GetInstances)
-	router.POST("/apps/:id", a.PostRegister)
-	router.PUT("/apps/:id/:instance", a.PutRenew)
-	router.DELETE("/apps/:id/:instance", a.DeleteInstance)
-	router.GET("/apps/:id/:instance", a.GetInstance)
+
+	router.GET("/hc", defaultMiddlware(a.GetHC))
+	router.GET("/apps", defaultMiddlware(a.GetServices))
+	router.GET("/apps/:id", defaultMiddlware(a.GetInstances))
+	router.POST("/apps/:id", defaultMiddlware(a.PostRegister))
+	router.PUT("/apps/:id/:instance", defaultMiddlware(a.PutRenew))
+	router.DELETE("/apps/:id/:instance", defaultMiddlware(a.DeleteInstance))
+	router.GET("/apps/:id/:instance", defaultMiddlware(a.GetInstance))
 
 	// Serve status website
 	router.ServeFiles("/status/*filepath", http.Dir("website/"))

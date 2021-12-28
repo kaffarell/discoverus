@@ -1,7 +1,6 @@
 package api
 
 import (
-	"encoding/json"
 	"log"
 	"time"
 
@@ -80,13 +79,12 @@ func (a Application) GetService(serviceId string) (service.Service, error) {
 	return service, err
 }
 
-func (a Application) GetServices() string {
+func (a Application) GetServices() ([]service.Service, error) {
 	keys, err := a.db.GetAllServices()
 	if err != nil {
 		log.Println(err)
 	}
-	returnString, _ := json.Marshal(keys)
-	return string(returnString)
+	return keys, err
 }
 
 func (a Application) AddInstance(serviceName string, instance instance.Instance) bool {

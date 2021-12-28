@@ -3,8 +3,7 @@ package storage
 import (
 	"errors"
 
-	// FIXME: should not be here
-	// Maybe use interface{} as type and use Services in application/api
+	// FIXME: Maybe use interface{} as type and use Services in application/api
 	"github.com/kaffarell/discoverus/pkg/application/core/instance"
 	"github.com/kaffarell/discoverus/pkg/application/core/service"
 )
