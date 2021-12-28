@@ -9,21 +9,14 @@ import (
 
 	// adapters
 	"github.com/kaffarell/discoverus/pkg/adapters/framework/left/rest"
-	"github.com/kaffarell/discoverus/pkg/adapters/framework/right/db"
+	"github.com/kaffarell/discoverus/pkg/adapters/framework/right/storage"
 )
 
 func main() {
 
 	// Initiating Database Adapter
 	// Based on the DbPort interface
-	var err error
-	log.Println("Connecting to databases...")
-	dbAdapter := db.NewAdapter()
-	if err != nil {
-		log.Fatalf("Failed to initiate db connection: %v", err)
-	}
-
-	log.Println("Connected to databases!")
+	dbAdapter := storage.NewAdapter()
 
 	// Creating Configuration
 	config := config.NewConfiguration(90, 10)

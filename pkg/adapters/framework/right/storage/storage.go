@@ -1,4 +1,4 @@
-package db
+package storage
 
 import (
 	"errors"
@@ -23,17 +23,17 @@ func NewAdapter() *Adapter {
 	}
 }
 
-func (a Adapter) AddService(service service.Service) error {
+func (a *Adapter) AddService(service service.Service) error {
 	a.allServices = append(a.allServices, service)
 	return nil
 }
 
-func (a Adapter) AddInstance(serviceId string, instance instance.Instance) error {
+func (a *Adapter) AddInstance(serviceId string, instance instance.Instance) error {
 	a.allInstances = append(a.allInstances, instance)
 	return nil
 }
 
-func (a Adapter) DeleteInstance(serviceId string, instanceId string) error {
+func (a *Adapter) DeleteInstance(serviceId string, instanceId string) error {
 	for i, v := range a.allInstances {
 		if v.Id == instanceId {
 			// Remove this instance
@@ -45,7 +45,7 @@ func (a Adapter) DeleteInstance(serviceId string, instanceId string) error {
 	return errors.New("no instance to delete found")
 }
 
-func (a Adapter) DeleteService(serviceId string) error {
+func (a *Adapter) DeleteService(serviceId string) error {
 	for i, v := range a.allServices {
 		if v.Id == serviceId {
 			// Remove this instance
