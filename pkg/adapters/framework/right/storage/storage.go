@@ -103,7 +103,6 @@ func (a *Adapter) GetAllServices() ([]service.Service, error) {
 	a.allServicesMutex.Lock()
 	defer a.allServicesMutex.Unlock()
 
-	// TODO: Check if we really need this
 	services := make([]service.Service, len(a.allServices))
 	copy(services, a.allServices)
 

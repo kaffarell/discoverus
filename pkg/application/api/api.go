@@ -27,7 +27,6 @@ func NewApplication(db ports.StoragePort, config config.Configuration) *Applicat
 func (a Application) initTicker() {
 	// The ticker checks if a instance has sent a heartbeat in the last 90 seconds
 	// If no heartbeat has been sent, the instance will be deleted
-	// FIXME: get the time from a configuration file/service
 	ticker := time.NewTicker(time.Duration(a.config.UpdateInterval) * time.Second)
 	quit := make(chan struct{})
 	go a.ticker(*ticker, quit)
