@@ -39,6 +39,7 @@ func (a *Adapter) AddInstance(serviceId string, instance instance.Instance) erro
 	defer a.allInstancesMutex.Unlock()
 
 	a.allInstances = append(a.allInstances, instance)
+
 	return nil
 }
 
@@ -101,8 +102,9 @@ func (a *Adapter) GetSpecificInstance(instanceId string) (instance.Instance, err
 func (a *Adapter) GetAllServices() ([]service.Service, error) {
 	a.allServicesMutex.Lock()
 	defer a.allServicesMutex.Unlock()
+    services := a.allServices
 
-	return a.allServices, nil
+	return services, nil
 }
 
 func (a *Adapter) GetService(serviceId string) (service.Service, error) {

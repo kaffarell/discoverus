@@ -55,19 +55,29 @@ func (a Application) checkInstances() {
 	// Get current unix time
 	currentTime := time.Now().Unix()
 
+	instancesToBeRemoved := make([]instance.Instance, 0)
+
 	// Go through all instances and check unix time
 	for _, v := range allInstances {
 		if v.LastHeartbeat < (currentTime - a.config.InstanceTimeout + a.config.InstanceTimeoutMargin) {
-			// Remove instance
-			log.Println("Removing instance " + v.Id + " because of inactivity")
-			err := a.DeleteInstance(v.ServiceId, v.Id)
-			if err != nil {
-				log.Println("Error removing instance")
-			} else {
-				log.Println("Removed instance: " + v.Id)
-			}
+			instancesToBeRemoved = append(instancesToBeRemoved, v)
 		}
 	}
+
+	// Remove all instances
+	for _, v := range instancesToBeRemoved {
+		// Remove instance
+		log.Println("Removing instance " + v.Id + " because of inactivity")
+		err := a.DeleteInstance(v.ServiceId, v.Id)
+		if err != nil {
+			log.Println("Error removing instance")
+			log.Println(err)
+		} else {
+			log.Println("Removed instance: " + v.Id)
+		}
+
+	}
+
 }
 
 func (a Application) InsertService(service service.Service) error {
