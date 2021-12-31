@@ -19,7 +19,7 @@ func main() {
 	dbAdapter := storage.NewAdapter()
 
 	// Creating Configuration
-	config := config.NewConfiguration(90, 10)
+	config := config.NewConfiguration(90, 15)
 
 	// Initiating application
 	// Passing the previously created dbAdapter, based on the DbPort interface

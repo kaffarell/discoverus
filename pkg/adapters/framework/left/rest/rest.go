@@ -105,8 +105,9 @@ func (adapter Adapter) GetInstances(writer http.ResponseWriter, req *http.Reques
 	writer.WriteHeader(http.StatusOK)
 	fmt.Fprint(writer, string(json))
 }
-func (adapter Adapter) GetServices(writer http.ResponseWriter, req *http.Request, parameter httprouter.Params) {
+func (adapter Adapter) GetAllServices(writer http.ResponseWriter, req *http.Request, parameter httprouter.Params) {
 	services, err := adapter.api.GetServices()
+
 	if err != nil {
 		writer.WriteHeader(http.StatusBadRequest)
 		return
@@ -141,7 +142,7 @@ func (adapter Adapter) GetAllInstances(writer http.ResponseWriter, req *http.Req
 		return
 	}
 
-	json, _ := json.Marshal([]instance.Instance(instances))
+	json, _ := json.Marshal(instances)
 	writer.WriteHeader(http.StatusOK)
 	fmt.Fprint(writer, string(json))
 }
@@ -182,7 +183,7 @@ func (a Adapter) Run() {
 	router.GET("/hc", defaultMiddlware(a.GetHC))
 
 	// Returns all the services it knows about
-	router.GET("/apps", defaultMiddlware(a.GetServices))
+	router.GET("/apps", defaultMiddlware(a.GetAllServices))
 
 	// Return all the instances of a specific service
 	router.GET("/apps/:id", defaultMiddlware(a.GetInstances))

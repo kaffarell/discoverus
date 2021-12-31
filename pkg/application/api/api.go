@@ -28,7 +28,7 @@ func (a Application) initTicker() {
 	// The ticker checks if a instance has sent a heartbeat in the last 90 seconds
 	// If no heartbeat has been sent, the instance will be deleted
 	// FIXME: get the time from a configuration file/service
-	ticker := time.NewTicker(time.Duration(a.config.InstanceTimeout) * time.Second)
+	ticker := time.NewTicker(time.Duration(a.config.UpdateInterval) * time.Second)
 	quit := make(chan struct{})
 	go a.ticker(*ticker, quit)
 }
@@ -38,6 +38,7 @@ func (a Application) ticker(ticker time.Ticker, quit chan struct{}) {
 	for {
 		select {
 		case <-ticker.C:
+			log.Println("Checking instances for inactivity...")
 			a.checkInstances()
 		case <-quit:
 			ticker.Stop()
@@ -45,6 +46,10 @@ func (a Application) ticker(ticker time.Ticker, quit chan struct{}) {
 		}
 	}
 }
+
+// Created:
+// 58s + 25s = 83
+// Removed: 15:37:25
 
 func (a Application) checkInstances() {
 	allInstances, err := a.db.GetAllInstances()
@@ -59,7 +64,7 @@ func (a Application) checkInstances() {
 
 	// Go through all instances and check unix time
 	for _, v := range allInstances {
-		if v.LastHeartbeat < (currentTime - a.config.InstanceTimeout + a.config.InstanceTimeoutMargin) {
+		if v.LastHeartbeat < (currentTime - a.config.InstanceTimeout) {
 			instancesToBeRemoved = append(instancesToBeRemoved, v)
 		}
 	}

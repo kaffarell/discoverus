@@ -142,4 +142,4 @@ let tableBody = document.getElementById('tableBody');
 update()
 fillServiceTable()
 
-setInterval(update, 2000);
+setInterval(update, 1000);

@@ -102,7 +102,10 @@ func (a *Adapter) GetSpecificInstance(instanceId string) (instance.Instance, err
 func (a *Adapter) GetAllServices() ([]service.Service, error) {
 	a.allServicesMutex.Lock()
 	defer a.allServicesMutex.Unlock()
-    services := a.allServices
+
+	// TODO: Check if we really need this
+	services := make([]service.Service, len(a.allServices))
+	copy(services, a.allServices)
 
 	return services, nil
 }
@@ -122,6 +125,9 @@ func (a *Adapter) GetService(serviceId string) (service.Service, error) {
 func (a *Adapter) GetAllInstances() ([]instance.Instance, error) {
 	a.allInstancesMutex.Lock()
 	defer a.allInstancesMutex.Unlock()
-	instances := a.allInstances
+
+	instances := make([]instance.Instance, len(a.allInstances))
+	copy(instances, a.allInstances)
+
 	return instances, nil
 }
