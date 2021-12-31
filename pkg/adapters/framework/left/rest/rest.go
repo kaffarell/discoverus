@@ -170,6 +170,7 @@ func (a Adapter) GetHC(writer http.ResponseWriter, req *http.Request, parameter 
 func defaultMiddlware(handle httprouter.Handle) httprouter.Handle {
 	return func(w http.ResponseWriter, req *http.Request, parameter httprouter.Params) {
 		w.Header().Set("Content-Type", "application/json")
+		log.Println(req.Method, req.URL.Path)
 		handle(w, req, parameter)
 	}
 }
