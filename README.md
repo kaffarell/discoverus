@@ -38,5 +38,5 @@ The default internal port is 2000, but we can reroute it when using the docker c
 * [x] Website that displays available services and instances
 * [x] De-register instances 
 * [x] Automatically remove services in 30 sec / renew with heartbeat
+* [x] Implement extensive logging
 * [ ] Rewrite PostRegister function
-* [ ] Implement extensive logging
