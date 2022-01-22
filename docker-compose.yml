@@ -9,45 +9,7 @@ services:
       - main
     ports: 
       - "2000:2000"
-    depends_on:
-      - logstash
 
-  elasticsearch:
-    image: elasticsearch:7.16.3
-    container_name: elasticsearch
-    networks:
-      - main
-    ports:
-      - "9200:9200"
-    environment:
-      - "discovery.type=single-node"
-  
-  logstash:
-    image: logstash:7.16.3
-    container_name: logstash
-    networks:
-      - main
-    ports:
-      - "5044:5044"
-      - "5000:5000"
-    volumes:
-      - ./logstash:/usr/share/logstash/pipeline:ro,z
-      #- $PWD/logstash:/etc/logstash:ro
-    #command: logstash -f /etc/logstash/logstash.conf
-    depends_on:
-      - elasticsearch
-  
-  kibana:
-    image: kibana:7.16.3
-    container_name: kibana
-    networks:
-      - main
-    ports:
-      - "5601:5601"
-    environment:
-      - ELASTICSEARCH_URL=http://elasticsearch:9200
-    depends_on:
-      - elasticsearch
 
 networks:
   main:
