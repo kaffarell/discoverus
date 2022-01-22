@@ -1,24 +1,25 @@
 package api
 
 import (
-	"log"
 	"time"
 
 	"github.com/kaffarell/discoverus/pkg/application/config"
 	"github.com/kaffarell/discoverus/pkg/application/core/instance"
 	"github.com/kaffarell/discoverus/pkg/application/core/service"
 	"github.com/kaffarell/discoverus/pkg/ports"
+	"github.com/sirupsen/logrus"
 )
 
 // Application implements the APIPort interface
 type Application struct {
-	config config.Configuration
+	logger *logrus.Logger
 	db     ports.StoragePort
+	config config.Configuration
 }
 
 // NewApplication creates a new Application
-func NewApplication(db ports.StoragePort, config config.Configuration) *Application {
-	newApplication := Application{db: db, config: config}
+func NewApplication(logger *logrus.Logger, db ports.StoragePort, config config.Configuration) *Application {
+	newApplication := Application{logger: logger, db: db, config: config}
 	newApplication.initTicker()
 	return &newApplication
 }
@@ -37,7 +38,7 @@ func (a Application) ticker(ticker time.Ticker, quit chan struct{}) {
 	for {
 		select {
 		case <-ticker.C:
-			log.Println("Checking instances for inactivity...")
+			a.logger.Info("Checking instances for inactivity...")
 			a.checkInstances()
 		case <-quit:
 			ticker.Stop()
@@ -53,7 +54,7 @@ func (a Application) ticker(ticker time.Ticker, quit chan struct{}) {
 func (a Application) checkInstances() {
 	allInstances, err := a.db.GetAllInstances()
 	if err != nil {
-		log.Println(err)
+		a.logger.Error(err)
 	}
 
 	// Get current unix time
@@ -71,13 +72,13 @@ func (a Application) checkInstances() {
 	// Remove all instances
 	for _, v := range instancesToBeRemoved {
 		// Remove instance
-		log.Println("Removing instance " + v.Id + " because of inactivity")
+		a.logger.Info("Removing instance " + v.Id + " because of inactivity")
 		err := a.DeleteInstance(v.ServiceId, v.Id)
 		if err != nil {
-			log.Println("Error removing instance")
-			log.Println(err)
+			a.logger.Error("Error removing instance")
+			a.logger.Error(err)
 		} else {
-			log.Println("Removed instance: " + v.Id)
+			a.logger.Info("Removed instance: " + v.Id)
 		}
 
 	}
@@ -96,14 +97,14 @@ func (a Application) GetService(serviceId string) (service.Service, error) {
 func (a Application) GetServices() ([]service.Service, error) {
 	keys, err := a.db.GetAllServices()
 	if err != nil {
-		log.Println(err)
+		a.logger.Error(err)
 	}
 	return keys, err
 }
 
 func (a Application) AddInstance(serviceName string, instance instance.Instance) bool {
 	err := a.db.AddInstance(serviceName, instance)
-	log.Printf("Added Instance %s to service %s", instance.Id, serviceName)
+	a.logger.Infof("Added Instance %s to service %s", instance.Id, serviceName)
 	if err != nil {
 		return false
 	}
@@ -113,7 +114,7 @@ func (a Application) AddInstance(serviceName string, instance instance.Instance)
 func (a Application) GetInstancesOfService(serviceName string) ([]instance.Instance, error) {
 	array, err := a.db.GetInstancesOfService(serviceName)
 	if err != nil {
-		log.Println(err)
+		a.logger.Error(err)
 	}
 	return array, nil
 }
