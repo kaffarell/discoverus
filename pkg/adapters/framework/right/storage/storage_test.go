@@ -13,7 +13,7 @@ func TestAddService(t *testing.T) {
 
 	got, err := a.GetService("test")
 	if err != nil {
-		t.Error("Got error")
+		t.Error("Error getting service")
 	}
 	if sample_service != got {
 		t.Error("Service not inserted correctly")
